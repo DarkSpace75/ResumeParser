@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Analysis Results</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(135deg, #4a00e0, #8e2de2);
+            color: #fff;
+            text-align: center;
+        }
+
+        .result-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-top: 30px;
+            width: 85%;
+            max-width: 600px;
+        }
+
+        h2, h3, .improvement-note {
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        #gauge {
+            width: 95%;
+            max-width: 600px;
+            margin: 30px auto;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 15px 25px;
+            background-color: #00bcd4;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background-color: #008ba7;
+        }
+
+        .improvement-note {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+        }
+
+        #qrcode {
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .result-container, #gauge {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="result-container">
+        <h2>Best Matching Job: {{ match }}</h2>
+        <h3>Predicted Job Category: {{ category }}</h3>
+        <div id="gauge"></div>
+
+        <script>
+            var data = [{
+                type: "indicator",
+                mode: "gauge+number",
+                value: {{ similarity }},
+                title: { text: "Matching Percentage (%)", font: { color: '#fff' } },
+                gauge: {
+                    axis: { range: [0, 100], tickcolor: '#fff', linecolor: '#fff' },
+                    steps: [
+                        { range: [0, 50], color: "#FFB6C1" },
+                        { range: [50, 70], color: "#FFFFE0" },
+                        { range: [70, 100], color: "#90EE90" }
+                    ],
+                    threshold: { line: { color: "red", width: 4 }, value: 100 }
+                }
+            }];
+
+            Plotly.newPlot("gauge", data, {paper_bgcolor: 'rgba(0,0,0,0)', font: { color: '#fff' }});
+        </script>
+
+        {% if similarity < 60 %}
+            <div class="improvement-note">
+                <p><strong>Note:</strong> Your resume's matching percentage is below 60%. Consider improving your resume by:</p>
+                <ul>
+                    <li>Highlighting relevant skills and experiences.</li>
+                    <li>Tailoring your resume to the specific job description.</li>
+                    <li>Using keywords from the job description.</li>
+                    <li>Ensuring your resume is clear and concise.</li>
+                </ul>
+            </div>
+        {% endif %}
+
+        <div id="qrcode"></div>
+
+        <script>
+            var qrText = "Job Match: {{ match }} | Percentage: {{ similarity }}%";
+            var qrcode = new QRCode(document.getElementById("qrcode"), {
+                text: qrText,
+                width: 128,
+                height: 128,
+                colorDark : "#fff",
+                colorLight : "rgba(255, 255, 255, 0.1)",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        </script>
+
+        <a href="/" class="back-button">Analyze Another Resume</a>
+    </div>
+</body>
+</html>

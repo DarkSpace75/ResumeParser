@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Parsing - Career Navigator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Center content vertically */
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: #fff;
+            text-align: center; /* Center text globally */
+        }
+
+        .welcome-container, .form-container, #gauge {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-top: 30px;
+            width: 85%;
+            max-width: 600px;
+        }
+
+        .welcome-container h1, .welcome-container p {
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .welcome-container button {
+            width: 100%;
+            padding: 15px 25px;
+            background-color: #00bcd4;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .welcome-container button:hover {
+            background-color: #008ba7;
+        }
+
+        input[type="file"] {
+            width: calc(100% - 22px);
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        button[type="submit"], .home-button a {
+            width: 100%;
+            padding: 15px 25px;
+            background-color: #00bcd4;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        button[type="submit"]:hover, .home-button a:hover {
+            background-color: #008ba7;
+        }
+
+        #gauge {
+            width: 95%;
+            max-width: 600px;
+            margin: 30px auto;
+        }
+
+        .home-button {
+            margin-top: 30px;
+        }
+
+        @media (max-width: 600px) {
+            .welcome-container, .form-container, #gauge {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    {% if not process and not match %}
+        <div class="welcome-container">
+            <h1>Welcome to Profile Parsing and 
+                job alignment</h1>
+            <p>Unlock your career potential with our advanced resume analysis.</p>
+            <button onclick="location.href='/process'">Get Started</button>
+        </div>
+    {% elif process %}
+        <div class="form-container">
+            <h2>Upload Your Resume (PDF)</h2>
+            <form action="/" method="post" enctype="multipart/form-data">
+                <input type="file" name="resume" accept=".pdf" required>
+                <button type="submit">Analyze My Resume</button>
+            </form>
+        </div>
+    {% elif match %}
+        <h2>Best Matching Job: {{ match }}</h2>
+        <h3>Predicted Job Category: {{ category }}</h3>
+        <div id="gauge"></div>
+
+        <script>
+            var data = [{
+                type: "indicator",
+                mode: "gauge+number",
+                value: {{ similarity }},
+                title: { text: "Matching Percentage (%)", font: { color: '#fff' } },
+                gauge: {
+                    axis: { range: [0, 100], tickcolor: '#fff', linecolor: '#fff' },
+                    steps: [
+                        { range: [0, 50], color: "#FFB6C1" },
+                        { range: [50, 70], color: "#FFFFE0" },
+                        { range: [70, 100], color: "#90EE90" }
+                    ],
+                    threshold: { line: { color: "red", width: 4 }, value: 100 }
+                }
+            }];
+            Plotly.newPlot("gauge", data, {paper_bgcolor: 'rgba(0,0,0,0)', font: { color: '#fff' }});
+        </script>
+        <div class="home-button">
+            <a href="/">Analyze Another Resume</a>
+        </div>
+    {% endif %}
+
+</body>
+</html>
